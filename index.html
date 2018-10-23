@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width">
+  <title>PEONG MESSAGE</title>
+</head>
+
+<body>
+  <h3>펑리스트</h3>
+  <form name=msgForm>
+    <div>
+      <b>메세지 :</b>
+      <input type=text name=msg>
+      <b>시간 :</b>
+      <select name=time>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="30">30</option>
+        <option value="60">60</option>
+      </select>
+      <input type=button name=add value="추가">
+    </div>
+  </form>
+  <ul id="list">
+  </ul>
+
+  <script type='text/javascript' src="peong.js"></script>
+  <script type='text/javascript'>
+
+    onload = Peong.init;
+  </script>
+
+</body>
+
+</html>
