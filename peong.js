@@ -16,7 +16,7 @@ var Peong = (function() {
     });
     listEl.addEventListener("click", function(e) {
       if (e.target.name === "increase" || e.target.name === "decrease") {
-        setTime(e.target, e.target.name);
+        setTime(e.target);
       } else if (e.target.name === "delete") {
         deleteMsg(e.target);
       }
@@ -90,14 +90,49 @@ var Peong = (function() {
         "</span><br><select name=iTime>" +
         '<option value="3">3초</option>' +
         '<option value="5">5초</option>' +
-        '<option value="*2">2배</option>' +
-        '<option value="*3">3배</option>' +
+        '<option value="02">2배</option>' +
+        '<option value="03">3배</option>' +
         '</select><input type=button name=increase value="시간 추가">' +
         "<select name=dTime>" +
         '<option value="-3">-3초</option>' +
         '<option value="-5">-5초</option>' +
         '</select><input type=button name=decrease value="시간 감소"><input type=button name=delete value="삭제"></li>';
     }
+  }
+
+  function deleteMsg(target) {
+    var targetId = target.parentNode.id,
+      msgList = JSON.parse(localStorage.getItem("msg"));
+
+      msgList = msgList.filter(function(item) {
+      return item.id !== targetId;
+    });
+
+    localStorage.setItem("msg", JSON.stringify(msgList));
+    updateList();
+  }
+
+  function setTime(target) {
+    var parent = target.parentNode,
+      targetId = parent.id,
+      timeVal = target.previousElementSibling.value,
+      msgList = JSON.parse(localStorage.getItem("msg")),
+      i, curTime, isMultiply;
+
+    if (timeVal.indexOf("0") !== -1) {
+      isMultiply = true;
+    }
+
+    for (i = 0; i < msgList.length; i++) {
+      if (msgList[i].id == targetId) {
+        curTime = msgList[i].time;
+        timeVal = parseInt(timeVal);
+        msgList[i].time = isMultiply ? curTime * timeVal : curTime + timeVal;
+        break;
+      }
+    }
+
+    localStorage.setItem("msg", JSON.stringify(msgList));
   }
 
   function clearMsg() {
