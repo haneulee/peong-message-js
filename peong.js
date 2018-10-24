@@ -11,6 +11,9 @@ var Peong = (function() {
     document.msgForm.add.addEventListener("click", function() {
       addMsg();
     });
+    document.msgForm.clear.addEventListener("click", function() {
+      clearMsg();
+    });
     listEl.addEventListener("click", function(e) {
       if (e.target.name === "increase" || e.target.name === "decrease") {
         setTime(e.target, e.target.name);
@@ -20,7 +23,7 @@ var Peong = (function() {
     });
 
     msgTimer = setInterval(function() {
-      // countTime();
+      countTime();
     }, 1000);
 
     updateList();
@@ -71,7 +74,7 @@ var Peong = (function() {
     listEl.innerHTML = "";
     msgList = JSON.parse(msgList);
 
-    msgList.sort((a, b) => a.time > b.time);
+    msgList.sort((a, b) => parseInt(a.time) < parseInt(b.time));
 
     for (i = 0; i < msgList.length; i++) {
       target = msgList[i];
@@ -82,7 +85,7 @@ var Peong = (function() {
         target.id +
         '"><span>' +
         target.msg +
-        " </span><span>남은시간 : " +
+        ' </span>남은시간 : <span id="time">' +
         time +
         "</span><br><select name=iTime>" +
         '<option value="3">3초</option>' +
@@ -97,136 +100,39 @@ var Peong = (function() {
     }
   }
 
-  // function deleteAlarm(target) {
-  //   var targetId = target.parentNode.id,
-  //     alarmList = JSON.parse(localStorage.getItem("alarm"));
+  function clearMsg() {
+    localStorage.removeItem("msg");
+    listEl.innerHTML = "";
+  }
 
-  //   alarmList = alarmList.filter(function(item) {
-  //     return item.id !== targetId;
-  //   });
+  function countTime() {
+    var msgList = localStorage.getItem("msg"),
+      newList = [],
+      i, time, el, timeEl, len;
 
-  //   localStorage.setItem("alarm", JSON.stringify(alarmList));
-  //   updateAlarm();
-  // }
+    if (!msgList) {
+      return;
+    }
 
-  // function snoozeAlarm(target) {
-  //   var targetId = target.parentNode.id,
-  //     alarmList = JSON.parse(localStorage.getItem("alarm")),
-  //     i;
+    msgList = JSON.parse(msgList);
+    len = msgList.length;
 
-  //   for (i = 0; i < alarmList.length; i++) {
-  //     if (alarmList[i].id == targetId) {
-  //       alarmList[i].snooze = !alarmList[i].snooze;
-  //       target.style.color = alarmList[i].snooze === true ? "green" : "black";
-  //       break;
-  //     }
-  //   }
+    for (i = 0; i < len; ++i) {
+      el = listEl.querySelector("[id=" + msgList[i].id + "]");
+      timeEl = el.querySelector("[id=time]");
+      time = parseInt(msgList[i].time) - 1;
 
-  //   localStorage.setItem("alarm", JSON.stringify(alarmList));
-  // }
+      if (time === 0) {
+        el.parentNode.removeChild(el);
+      } else {
+        msgList[i].time = time;
+        timeEl.textContent = time;
+        newList.push(msgList[i]);
+      }
+    }
 
-  // function clearAlarm() {
-  //   localStorage.removeItem("alarm");
-  //   listEl.innerHTML = "";
-  // }
-
-  // function setTime() {
-  //   currentTime = new Date(
-  //     currentTime.getFullYear(),
-  //     currentTime.getMonth(),
-  //     currentTime.getDate(),
-  //     document.alarmForm.sh.value,
-  //     document.alarmForm.sm.value,
-  //     document.alarmForm.ss.value
-  //   );
-
-  //   document.alarmForm.sh.value = "";
-  //   document.alarmForm.sm.value = "";
-  //   document.alarmForm.ss.value = "";
-  // }
-
-  // function countTime() {
-  //   var s = currentTime.getSeconds(),
-  //     m = currentTime.getMinutes(),
-  //     h = currentTime.getHours(),
-  //     alarmList,
-  //     i,
-  //     time,
-  //     ah,
-  //     am;
-
-  //   s += 1;
-
-  //   //분이 바뀔 때
-  //   if (s == 60) {
-  //     s = 0;
-  //     m += 1;
-
-  //     //알람 검사
-  //     if (localStorage.getItem("alarm")) {
-  //       alarmList = JSON.parse(localStorage.getItem("alarm"));
-
-  //       for (i = 0; i < alarmList.length; i++) {
-  //         time = alarmList[i].time;
-  //         ah = Math.floor(time / 3600);
-  //         am = Math.floor((time % 3600) / 60);
-
-  //         if (m == am && h == ah) {
-  //           popupAlarm(alarmList[i], ah, am);
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   //시가 바뀔 때
-  //   if (m == 60) {
-  //     m = 0;
-  //     h += 1;
-  //   }
-
-  //   if (currentTime && !isNaN(h) && !isNaN(m) && !isNaN(s)) {
-  //     currentTime = new Date(
-  //       currentTime.getFullYear(),
-  //       currentTime.getMonth(),
-  //       currentTime.getDate(),
-  //       h,
-  //       m,
-  //       s
-  //     );
-  //   } else {
-  //     currentTime = new Date();
-  //   }
-
-  //   curTimeEl.innerHTML = currentTime.toString();
-  //   document.alarmForm.ch.value = currentTime.getHours();
-  //   document.alarmForm.cm.value = currentTime.getMinutes();
-  //   document.alarmForm.cs.value = currentTime.getSeconds();
-  // }
-
-  // function popupAlarm(itemObj, h, m) {
-  //   var alarmType = "",
-  //     text;
-
-  //   if (itemObj.snooze) {
-  //     return;
-  //   }
-
-  //   if (itemObj.clockMode === "일반") {
-  //     alarmType = "소리";
-  //   } else if (itemObj.clockMode === "진동") {
-  //     alarmType = "진동";
-  //   } else {
-  //     if (itemObj.alarmMode === "긴급") {
-  //       alarmType = "소리";
-  //     } else {
-  //       return;
-  //     }
-  //   }
-
-  //   text = h + " : " + m + "\n " + itemObj.msg + "\n " + alarmType + "입니다!!";
-
-  //   window.alert(text);
-  // }
+    localStorage.setItem("msg", JSON.stringify(newList));
+  }
 
   return {
     init
